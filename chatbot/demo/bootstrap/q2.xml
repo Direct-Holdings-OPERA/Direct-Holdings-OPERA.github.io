@@ -1,0 +1,14 @@
+<Chat locales="ja-JP" selector=".d-flex" xmlns="web+xmlns://dh-chat/chat" xmlns:scene="web+xmlns://dh-chat/scene">
+	<Chapter>
+		<Scene>
+			<template xmlns="http://www.w3.org/1999/xhtml" scene:type="navi">
+				<h2>質問 2</h2>
+				<div>アクティブなスポーツやアドベンチャーに挑戦したいですか？</div>
+				<div class="d-flex flex-row gap-3">
+					<button type="button" class="btn btn-primary" scene:href="planA.xml">Yes</button>
+					<button type="button" class="btn btn-primary" scene:href="planB.xml">No</button>
+				</div>
+			</template>
+		</Scene>
+	</Chapter>
+</Chat>

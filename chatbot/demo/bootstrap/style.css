@@ -1,0 +1,17 @@
+[data-bs-theme="light"]{
+	width: calc(100% - 2rem);
+}
+@media (min-width: 576px) {
+	[data-bs-theme="light"]{
+		width: 500px;
+	}
+}
+[data-bs-theme="light"]:has(.chat-visible:checked){
+	height: min(500px, calc(100vh - 2rem));
+}
+main{
+	display: none;
+}
+[data-bs-theme="light"]:has(.chat-visible:checked) main{
+	display: block;
+}

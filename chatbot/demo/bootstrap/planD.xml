@@ -1,0 +1,10 @@
+<Chat locales="ja-JP" selector="table" xmlns="web+xmlns://dh-chat/chat" xmlns:scene="web+xmlns://dh-chat/scene">
+	<Chapter>
+		<Scene>
+			<template xmlns="http://www.w3.org/1999/xhtml" scene:type="navi">
+				<h2>プラン D</h2>
+				<div>大都市ショッピングツアー</div>
+			</template>
+		</Scene>
+	</Chapter>
+</Chat>
