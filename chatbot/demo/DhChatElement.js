@@ -226,7 +226,7 @@ const $parseChat = doc => {
 		alias: alias
 	};
 };
-const $parseLayout = doc => {
+const $parseLayout = (doc, base) => {
 	const res = {};
 	const content = Symbol("content");
 	const types = Object.fromEntries(
@@ -237,6 +237,14 @@ const $parseLayout = doc => {
 			const template = type.querySelector("template");
 			if(template == null){
 				return null;
+			}
+			for(let script of template.content.querySelectorAll('script[src]')){
+				const url = new URL(script.getAttribute("src"), base);
+				script.setAttribute("src", url.href);
+			}
+			for(let link of template.content.querySelectorAll('link[href]')){
+				const url = new URL(link.getAttribute("href"), base);
+				link.setAttribute("href", url.href);
 			}
 			if(type.tagName == "Content"){
 				return [content, template];
@@ -416,7 +424,8 @@ class DhChatElement extends HTMLElement{
 		}else if(name == "layout"){
 			const priv = this[$priv];
 			$getXmlAsync(newValue).then(doc => {
-				const layout = $parseLayout(doc);
+				const base = new URL(newValue, location.href);
+				const layout = $parseLayout(doc, base.href);
 				priv.root.innerHTML = "";
 				priv.root.appendChild(layout.content);
 				priv.types = layout.types;
