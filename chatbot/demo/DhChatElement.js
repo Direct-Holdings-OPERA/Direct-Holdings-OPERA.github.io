@@ -593,3 +593,11 @@ class DhChatElement extends HTMLElement{
 }
 customElements.define(elementName, DhChatElement);
 })("dh-chat");
+(function(sheet){
+sheet.replace(`
+dh-chat{
+	display: contents;
+}
+`);
+document.adoptedStyleSheets.push(sheet);
+})(new CSSStyleSheet());
