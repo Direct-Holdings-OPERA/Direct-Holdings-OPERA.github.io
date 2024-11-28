@@ -415,7 +415,8 @@ class DhChatElement extends HTMLElement{
 			caches: {},
 			layout: null,
 			location: null,
-			history: []
+			history: [],
+			scripts: new WeakMap(),
 		}, Promise.withResolvers());
 	}
 	attributeChangedCallback(name, oldValue, newValue){
@@ -426,6 +427,12 @@ class DhChatElement extends HTMLElement{
 			$getXmlAsync(newValue).then(doc => {
 				const base = new URL(newValue, location.href);
 				const layout = $parseLayout(doc, base.href);
+				const scripts = Array.from(layout.content.querySelectorAll('script'), element => {
+					const comment = document.createComment("script");
+					element.parentNode.replaceChild(comment, element);
+					priv.scripts.set(element, {comment: comment, root: priv.root});
+					return element;
+				});
 				priv.root.innerHTML = "";
 				priv.root.appendChild(layout.content);
 				priv.types = layout.types;
@@ -435,9 +442,15 @@ class DhChatElement extends HTMLElement{
 						node: layout.types[name]
 					};
 				}
+				for(let element of scripts){
+					this.appendChild(element);
+				}
 				priv.resolve(null);
 			});
 		}
+	}
+	get scripts(){
+		return this[$priv].scripts;
 	}
 	set location(href){
 		const priv = this[$priv];
