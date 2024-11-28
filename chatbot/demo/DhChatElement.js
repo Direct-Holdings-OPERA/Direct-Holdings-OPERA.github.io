@@ -130,9 +130,8 @@ const $scene = (scene, selector, segmenter) => {
 						nodeItem.delay = token.isWordLike ? "TEXT" : "EMPTY";
 						nodeItem.value = val;
 						first = false;
-						continue;
+						nodeList.splice(textIdx, 1);
 					}
-					textIdx++;
 					const append = {
 						id: Symbol("node"),
 						parent: nodeItem.parent,
@@ -142,6 +141,7 @@ const $scene = (scene, selector, segmenter) => {
 						delay: (token.isWordLike ? "TEXT" : "EMPTY")
 					};
 					nodeList.splice(textIdx, 0, append);
+					textIdx++;
 				}
 				delete nodeItem.tokens;
 			}
