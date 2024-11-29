@@ -369,42 +369,38 @@ const $renderAsync = async (target, options, delayCallback) => {
 	}
 	return null;
 };
-const $renderSceneAsync = async (root, layout, optionList) => {
+const $renderSceneAsync = async (root, layout, optionList, location) => {
+	const res = {
+		id: `${performance.now()}`,
+		location: location,
+		views: []
+	};
 	for(let options of optionList){
-		if(!(options.type in layout)){
+		if((!(options.type in layout)) || (!("target" in layout[options.type]))){
 			continue;
 		}
 		const node = layout[options.type].node.cloneNode(true);
-		const nodeIterator = document.createNodeIterator(root, NodeFilter.SHOW_ELEMENT, node => {
-			if(
-				node.hasAttributeNS("web+xmlns://dh-chat/view", "types") &&
-				node.getAttributeNS("web+xmlns://dh-chat/view", "types").trim().split(/\s+/).includes(options.type)
-			){
-				return NodeFilter.FILTER_ACCEPT;
-			}
-			return NodeFilter.FILTER_REJECT;
-		});
-		const target = nodeIterator.nextNode();
-		if(target == null){
-			continue;
-		}
-		const output = target.hasAttributeNS("web+xmlns://dh-chat/view", "output") ? target.getAttributeNS("web+xmlns://dh-chat/view", "output") : "append";
+		const target = layout[options.type].target;
+		const output = layout[options.type].output;
+		const viewData = {
+			type: options.type,
+			nodes: Array.from(node.childNodes)
+		};
+		const view = document.createNodeIterator(
+			node,
+			NodeFilter.SHOW_ELEMENT,
+			node => node.hasAttributeNS("web+xmlns://dh-chat/view", "slot") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+		).nextNode();
 		if(output == "replace"){
 			target.innerHTML = "";
 		}
-		const nodeIterator2 = document.createNodeIterator(node, NodeFilter.SHOW_ELEMENT, node => {
-			if(node.hasAttributeNS("web+xmlns://dh-chat/view", "slot")){
-				return NodeFilter.FILTER_ACCEPT;
-			}
-			return NodeFilter.FILTER_REJECT;
-		});
-		const view = nodeIterator2.nextNode();
 		target.appendChild(node);
 		if(view != null){
 			await $renderAsync(view, options, () => 100);
 		}
+		res.views.push(viewData);
 	}
-	return null;
+	return res;
 };
 class DhChatElement extends HTMLElement{
 	static observedAttributes = ["src", "layout"];
@@ -441,6 +437,20 @@ class DhChatElement extends HTMLElement{
 					priv.layout[name] = {
 						node: layout.types[name]
 					};
+				}
+				const typesIterator = document.createNodeIterator(
+					priv.root,
+					NodeFilter.SHOW_ELEMENT,
+					node => node.hasAttributeNS("web+xmlns://dh-chat/view", "types") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+				);
+				for(let types = typesIterator.nextNode(); types != null; types = typesIterator.nextNode()){
+					const names = types.getAttributeNS("web+xmlns://dh-chat/view", "types").trim().split(/\s+/);
+					for(let name of names){
+						if(name in priv.layout){
+							priv.layout[name].target = types;
+							priv.layout[name].output = types.hasAttributeNS("web+xmlns://dh-chat/view", "output") ? types.getAttributeNS("web+xmlns://dh-chat/view", "output") : "append";
+						}
+					}
 				}
 				for(let element of scripts){
 					this.appendChild(element);
@@ -518,7 +528,7 @@ class DhChatElement extends HTMLElement{
 				continue;
 			}
 			priv.location = `${request}#scene(${chapter},${scene})`;
-			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location);
+			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location).then(result => { console.log(result); });
 			break;
 		}
 	}
@@ -533,7 +543,7 @@ class DhChatElement extends HTMLElement{
 				continue;
 			}
 			priv.location = `${request}#scene(${chapter},${scene})`;
-			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location);
+			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location).then(result => { console.log(result); });
 			break;
 		}
 	}
@@ -549,7 +559,7 @@ class DhChatElement extends HTMLElement{
 				continue;
 			}
 			priv.location = `${request}#scene(${chapter},${scene})`;
-			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location);
+			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location).then(result => { console.log(result); });
 			break;
 		}
 	}
@@ -566,7 +576,7 @@ class DhChatElement extends HTMLElement{
 				continue;
 			}
 			priv.location = `${request}#scene(${chapter},${scene})`;
-			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location);
+			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location).then(result => { console.log(result); });
 			break;
 		}
 	}
@@ -582,7 +592,7 @@ class DhChatElement extends HTMLElement{
 				continue;
 			}
 			priv.location = `${request}#scene(${chapter},${scene})`;
-			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location);
+			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location).then(result => { console.log(result); });
 			break;
 		}
 	}
@@ -599,7 +609,7 @@ class DhChatElement extends HTMLElement{
 				continue;
 			}
 			priv.location = `${request}#scene(${chapter},${scene})`;
-			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location);
+			$renderSceneAsync(priv.root, priv.layout, chapters[chapter][scene], priv.location).then(result => { console.log(result); });
 			break;
 		}
 	}
