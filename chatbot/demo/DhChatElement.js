@@ -229,6 +229,7 @@ const $parseChat = doc => {
 const $parseLayout = (doc, base) => {
 	const res = {};
 	const content = Symbol("content");
+	const baseWarp = base.match(/^(?:data|blob):/) ? location.href : blob;
 	const types = Object.fromEntries(
 		Array.from(doc.documentElement.childNodes, type => {
 			if(type.nodeType != Node.ELEMENT_NODE){
@@ -239,11 +240,11 @@ const $parseLayout = (doc, base) => {
 				return null;
 			}
 			for(let script of template.content.querySelectorAll('script[src]')){
-				const url = new URL(script.getAttribute("src"), base);
+				const url = new URL(script.getAttribute("src"), baseWarp);
 				script.setAttribute("src", url.href);
 			}
 			for(let link of template.content.querySelectorAll('link[href]')){
-				const url = new URL(link.getAttribute("href"), base);
+				const url = new URL(link.getAttribute("href"), baseWarp);
 				link.setAttribute("href", url.href);
 			}
 			if(type.tagName == "Content"){
