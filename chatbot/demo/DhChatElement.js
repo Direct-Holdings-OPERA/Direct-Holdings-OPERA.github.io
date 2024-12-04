@@ -229,7 +229,7 @@ const $parseChat = doc => {
 const $parseLayout = (doc, base) => {
 	const res = {};
 	const content = Symbol("content");
-	const baseWarp = base.match(/^(?:data|blob):/) ? location.href : blob;
+	const baseWarp = base.match(/^(?:data|blob):/) ? location.href : base;
 	const types = Object.fromEntries(
 		Array.from(doc.documentElement.childNodes, type => {
 			if(type.nodeType != Node.ELEMENT_NODE){
