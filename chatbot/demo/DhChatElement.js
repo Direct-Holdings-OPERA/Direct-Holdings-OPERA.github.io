@@ -465,8 +465,8 @@ class DhChatElement extends HTMLElement{
 	}
 	set location(href){
 		const priv = this[$priv];
-		const src = new URL(href, location.href);
-		const request = `${src.origin}${src.pathname}${src.search}`;
+		const src = href.match(/^(?:data|blob):/) ? new URL(href) : new URL(href, location.href);
+		const request = `${href.match(/^(?:data|blob):/) ? src.protocol : src.origin}${src.pathname}${src.search}`;
 		if(request in priv.caches){
 			priv.location = src.href;
 			priv.promise.then(() => { this.redoScene(); });
@@ -510,7 +510,7 @@ class DhChatElement extends HTMLElement{
 	getAddr(location = null){
 		const priv = this[$priv];
 		const src = new URL(location == null ? this[$priv].location : location);
-		const request = `${src.origin}${src.pathname}${src.search}`;
+		const request = `${src.href.match(/^(?:data|blob):/) ? src.protocol : src.origin}${src.pathname}${src.search}`;
 		const cache = priv.caches[request]
 		const hash = src.hash.replace(/^#/, "");
 		const matches = ((hash in cache.alias) ? cache.alias[hash] : hash).match(/scene\((\d+)(?:,(\d+))?\)/);
