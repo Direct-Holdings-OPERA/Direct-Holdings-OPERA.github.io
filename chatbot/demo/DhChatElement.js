@@ -66,6 +66,7 @@ const $scene = (scene, selector, segmenter) => {
 	const items = Array.from(scene.querySelectorAll('template'), template => {
 		const documentFragment = template.content;
 		const type = (template.hasAttributeNS("web+xmlns://dh-chat/scene", "type")) ? template.getAttributeNS("web+xmlns://dh-chat/scene", "type") : null;
+		const sink = (template.hasAttributeNS("web+xmlns://dh-chat/scene", "sink")) ? template.getAttributeNS("web+xmlns://dh-chat/scene", "sink") : null;
 		const nodeItem = {id: Symbol("node"), parent: null, topdown: null, value: null, delay: "TOPDOWN", leaf: true};
 		const nodeList = [nodeItem];
 		const textList = [{str: "", idx: []}];
@@ -188,7 +189,7 @@ const $scene = (scene, selector, segmenter) => {
 			}
 		}
 		
-		return {start, warpMap, leafMap, nodeMap, type};
+		return {start, warpMap, leafMap, nodeMap, type, sink};
 	});
 	return items;
 };
@@ -299,6 +300,9 @@ function* $warp(rendered, id, options){
 }
 function* $render(rendered, target, options){
 	const {warpMap, leafMap, nodeMap} = options;
+	if(!(target in leafMap)){
+		return;
+	}
 	const leafList = leafMap[target];
 	for(let i = leafList.length - 1; i >= 0; i--){
 		let node = null;
@@ -376,7 +380,12 @@ const $renderSceneAsync = async (root, layout, optionList, location) => {
 		location: location,
 		views: []
 	};
+	const mod = {type: null, view: null};
 	for(let options of optionList){
+		if((options.sink != null) && (options.sink == mod.type)){
+			await $renderAsync(mod.view, options, () => 100);
+			continue;
+		}
 		if((!(options.type in layout)) || (!("target" in layout[options.type]))){
 			continue;
 		}
@@ -397,6 +406,8 @@ const $renderSceneAsync = async (root, layout, optionList, location) => {
 		}
 		target.appendChild(node);
 		if(view != null){
+			mod.type = options.type;
+			mod.view = view;
 			await $renderAsync(view, options, () => 100);
 		}
 		res.views.push(viewData);
